@@ -8,12 +8,10 @@ pipeline {
     IMAGE_REL = v1r0
     CONTAINER_NAME = 'container-static-ws'
     TEST_LOCAL_PORT = 8081
-    DEPLOY_PROD = false
-    PARAMETERS_FILE = "${JENKINS_HOME}/parameters.groovy"
   }
   
   triggers {
-    cron('H */4 * * 1-5')
+    cron('0 1 * * 1-5')
   }
 
   agent { node { label 'master' } }
