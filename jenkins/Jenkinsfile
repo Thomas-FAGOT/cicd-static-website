@@ -16,36 +16,38 @@ pipeline {
 
   agent { node { label 'master' } }
   
-  stages('Step 1') {
-    steps {
-      echo "Step 1"
-      git branch: "master",
-        credentialsId: 'SHA256:rzhk6HCI2z1aQXCzk/EcGRxfrrOGfW/BlxRqlooRh6E',
-        url: 'https://github.com/Thomas-FAGOT/cicd-static-website.git'
-    }
-  }
-  stages('Step 2') {
-    steps {
-      sh "docker build -t ${IMAGE_NAME}:${IMAGE_REL} -f ../docker/Dockerfile"
-      sh "[ -z \"\$(docker ps -a | grep ${CONTAINER_NAME} 2>/dev/null)\" ] || docker rm -f container-static-ws"
-      sh "docker run --detach --name ${CONTAINER_NAME} --rm --publish ${TEST_LOCAL_PORT}:80 ${IMAGE_NAME}:${IMAGE_REL}"
-    }
-  }
-  stages('Step 3') {
+  stages {
+    stage('Step 1') {
       steps {
-        script {
-          final String url = "http://localhost:${TEST_LOCAL_PORT}/index.html"
-          final def (String response, int code) =
-                            sh(script: "curl -s -w '\\n%{response_code}'", returnStdout: true)
-                                .trim()
-                                .tokenize("\n")
+        echo "Step 1"
+        git branch: "master",
+          credentialsId: 'SHA256:rzhk6HCI2z1aQXCzk/EcGRxfrrOGfW/BlxRqlooRh6E',
+          url: 'https://github.com/Thomas-FAGOT/cicd-static-website.git'
+      }
+    }
+    stage('Step 2') {
+      steps {
+        sh "docker build -t ${IMAGE_NAME}:${IMAGE_REL} -f ../docker/Dockerfile"
+        sh "[ -z \"\$(docker ps -a | grep ${CONTAINER_NAME} 2>/dev/null)\" ] || docker rm -f container-static-ws"
+        sh "docker run --detach --name ${CONTAINER_NAME} --rm --publish ${TEST_LOCAL_PORT}:80 ${IMAGE_NAME}:${IMAGE_REL}"
+      }
+    }
+    stage('Step 3') {
+        steps {
+          script {
+            final String url = "http://localhost:${TEST_LOCAL_PORT}/index.html"
+            final def (String response, int code) =
+                              sh(script: "curl -s -w '\\n%{response_code}'", returnStdout: true)
+                                  .trim()
+                                  .tokenize("\n")
 
-          echo "HTTP response status code: $code"
+            echo "HTTP response status code: $code"
 
-          if (code == 200) {
-            echo response
+            if (code == 200) {
+              echo response
+            }
           }
         }
-      }
+    }
   }
 }
