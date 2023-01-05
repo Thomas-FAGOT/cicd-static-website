@@ -22,7 +22,7 @@ pipeline {
       steps {
         echo "Step 1"
         git branch: "master",
-          credentialsId: 'SHA256:rzhk6HCI2z1aQXCzk/EcGRxfrrOGfW/BlxRqlooRh6E',
+          credentialsId: 'docker-jenkins',
           url: 'https://github.com/Thomas-FAGOT/cicd-static-website.git'
       }
     }
