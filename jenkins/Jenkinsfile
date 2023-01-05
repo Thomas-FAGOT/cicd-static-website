@@ -16,20 +16,22 @@ pipeline {
 
   agent { node { label 'master' } }
   
-  stages {
-    stage('Step 1') {
+  stage('Step 1') {
+    steps {
       echo "Step 1"
       git branch: "master",
         credentialsId: 'SHA256:rzhk6HCI2z1aQXCzk/EcGRxfrrOGfW/BlxRqlooRh6E',
         url: 'https://github.com/Thomas-FAGOT/cicd-static-website.git'
-      
     }
-    stage('Step 2') {
+  }
+  stage('Step 2') {
+    steps {
       sh "docker build -t ${IMAGE_NAME}:${IMAGE_REL} -f ../docker/Dockerfile"
       sh "[ -z \"\$(docker ps -a | grep ${CONTAINER_NAME} 2>/dev/null)\" ] || docker rm -f container-static-ws"
       sh "docker run --detach --name ${CONTAINER_NAME} --rm --publish ${TEST_LOCAL_PORT}:80 ${IMAGE_NAME}:${IMAGE_REL}"
     }
-    stage('Step 3') {
+  }
+  stage('Step 3') {
       steps {
         script {
           final String url = "http://localhost:${TEST_LOCAL_PORT}/index.html"
@@ -45,6 +47,5 @@ pipeline {
           }
         }
       }
-    }
   }
 }
