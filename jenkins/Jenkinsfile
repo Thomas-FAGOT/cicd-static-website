@@ -16,8 +16,6 @@ pipeline {
   triggers {
     cron('0 1 * * 1-5')
   }
-
-  agent { node { label 'master' } }
   
   stages {
     stage('Step 1') {
